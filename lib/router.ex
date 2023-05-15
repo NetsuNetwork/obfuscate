@@ -24,7 +24,31 @@ defmodule Obfuscate.Router do
     conn |> respond(:json, 200, "Welcome to Obfuscate!")
   end
 
-  get "/obfuscate" do
+  get "/lookup" do
+    conn = conn |> fetch_query_params()
+
+    url = conn.query_params() |> Map.get("url")
+
+    if url == nil do
+      conn |> respond(:json, 404, "No URL")
+    end
+
+    url = URI.new!(url)
+    id = String.slice(url.path, 1..-1)
+
+    case Obfuscate.InMemory.get(id) do
+      nil ->
+        conn |> respond(:json, 404, "URL doesn't exist")
+
+      url ->
+        conn
+        |> put_resp_header("location", url)
+        |> put_resp_content_type("text/html")
+        |> send_resp(302, "owo! You're being redirected to #{url}")
+    end
+  end
+
+  post "/obfuscate" do
     conn = conn |> fetch_query_params()
 
     url = conn.query_params() |> Map.get("url")
