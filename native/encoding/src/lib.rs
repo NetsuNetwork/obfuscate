@@ -1,6 +1,13 @@
+mod generators;
+
 #[rustler::nif]
-fn add(a: i64, b: i64) -> i64 {
-    a + b
+fn owo_id(bytes: i8) -> String {
+    generators::owo(bytes)
 }
 
-rustler::init!("Elixir.Obfuscate.Encoding", [add]);
+#[rustler::nif]
+fn ntsu_id(bytes: i8) -> String {
+  generators::ntsu(bytes)
+}
+
+rustler::init!("Elixir.Obfuscate.Encoding", [owo_id, ntsu_id]);
