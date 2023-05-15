@@ -24,6 +24,14 @@ defmodule Obfuscate.Router do
     conn |> respond(:json, 200, "Welcome to Obfuscate!")
   end
 
+  get "/obfuscate" do
+    conn = conn |> fetch_query_params()
+
+    url = conn.query_params()[:url]
+
+    IO.puts url
+  end
+
   get _ do
     conn |> respond(:json, 404, "Route doesn't exist...")
   end
