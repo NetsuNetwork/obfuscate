@@ -7,11 +7,10 @@ defmodule Obfuscate.InMemory do
 
   import Logger
 
-  @flush_time 3_600_000
-
   @impl true
   def init(state) do
-    schedule()
+    flush_time = Application.get_env(:obfuscate, :flush_time, "3600000")
+    schedule(String.to_integer(flush_time))
     {:ok, state}
   end
 
@@ -42,14 +41,15 @@ defmodule Obfuscate.InMemory do
   end
 
   @impl true
-  def handle_info({:flush}, state) do
-    schedule()
+  def handle_info({:flush, flush_time}, _state) do
+    schedule(flush_time)
 
     Logger.info("I-MDB: flushed")
     {:noreply, %{} }
   end
 
-  defp schedule(), do: Process.send_after(self(), {:flush}, @flush_time)
+  @spec schedule(integer()) :: any()
+  defp schedule(flush_time), do: Process.send_after(self(), {:flush, flush_time}, flush_time)
 
   @spec set(String.t(), String.t()) :: any()
   def set(id, url) do
