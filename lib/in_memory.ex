@@ -15,7 +15,7 @@ defmodule Obfuscate.InMemory do
   end
 
   def start_link(_args) do
-    GenServer.start_link(__MODULE__, %{}, name: :in_memdb)
+    GenServer.start_link(__MODULE__, %{}, name: __MODULE__)
   end
 
   @impl true
@@ -37,10 +37,11 @@ defmodule Obfuscate.InMemory do
       {:reply, url, state}
     end
 
-    {:reply, "URL does not exist...", state}
+    {:reply, nil, state}
   end
 
   @impl true
+  # Flush should instead `sweep` for any
   def handle_info({:flush, flush_time}, _state) do
     schedule(flush_time)
 
@@ -56,7 +57,7 @@ defmodule Obfuscate.InMemory do
     GenServer.cast(__MODULE__, {:set, id, url})
   end
 
-  @spec get(String.t()) :: any()
+  @spec get(String.t()) :: String.t() | nil
   def get(id) do
     GenServer.call(__MODULE__, {:get, id})
   end
