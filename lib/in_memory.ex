@@ -1,16 +1,20 @@
-defmodule Obfuscate.Database.InMemory do
+defmodule Obfuscate.InMemory do
   @moduledoc """
-  In-Memory database
+  In-Memory database, entries are flushed every 12 hours
   """
 
   use GenServer
 
+  import Logger
+
+  @flush_time 3_600_000
+
   @impl true
   def init(state) do
+    schedule()
     {:ok, state}
   end
 
-  @impl true
   def start_link(_args) do
     GenServer.start_link(__MODULE__, %{}, name: :in_memdb)
   end
@@ -21,7 +25,7 @@ defmodule Obfuscate.Database.InMemory do
       {:noreply, state}
     end
 
-    new_state = state |> Map.merge(%{id, url})
+    new_state = state |> Map.merge(%{id: id, url: url})
 
     {:noreply, new_state}
   end
@@ -37,9 +41,15 @@ defmodule Obfuscate.Database.InMemory do
     {:reply, "URL does not exist...", state}
   end
 
+  @impl true
   def handle_info({:flush}, state) do
+    schedule()
+
+    Logger.info("I-MDB: flushed")
     {:noreply, %{} }
   end
+
+  defp schedule(), do: Process.send_after(self(), {:flush}, @flush_time)
 
   @spec set(String.t(), String.t()) :: any()
   def set(id, url) do

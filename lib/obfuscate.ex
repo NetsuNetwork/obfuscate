@@ -7,7 +7,7 @@ defmodule Obfuscate do
   def start(_args, _opts) do
     Logger.info("Booting up...")
 
-    children = [{Bandit, plug: Obfuscate.Router, scheme: :http, port: 5488}]
+    children = [{Bandit, plug: Obfuscate.Router, scheme: :http, port: 5488}, Obfuscate.InMemory]
 
     Supervisor.start_link(children, name: Obfuscate.Supervisor, strategy: :one_for_one)
   end
