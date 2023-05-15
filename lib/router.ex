@@ -16,7 +16,7 @@ defmodule Obfuscate.Router do
   def respond(conn, :json, code, message) do
     conn
     |> put_resp_content_type("application/json")
-    |> send_resp(code, Jason.encode!(%{message: message}))
+    |> send_resp(code, Jason.encode!(%{status: code, message: message}))
     |> halt()
   end
 
@@ -27,9 +27,19 @@ defmodule Obfuscate.Router do
   get "/obfuscate" do
     conn = conn |> fetch_query_params()
 
-    url = conn.query_params()[:url]
+    url = conn.query_params() |> Map.get("url")
+    generator = conn.query_params() |> Map.get("gen", "owo")
+    length = conn.query_params() |> Map.get("len", "8")
 
-    IO.puts url
+    if !Common.is_url?(url) do
+      conn |> respond(:json, 400, "Invalid URL")
+    end
+
+    id = Common.id_generator(generator, String.to_integer(length))
+
+    Obfuscate.InMemory.set(url, id)
+
+    conn |> respond(:json, 201, "#{id}")
   end
 
   get _ do
