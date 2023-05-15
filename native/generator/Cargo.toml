@@ -1,11 +1,11 @@
 [package]
-name = "encoding"
+name = "generator"
 version = "0.1.0"
 authors = ["ArtieFuzzz"]
 edition = "2021"
 
 [lib]
-name = "encoding"
+name = "generator"
 path = "src/lib.rs"
 crate-type = ["cdylib"]
 
