@@ -61,7 +61,7 @@ defmodule Obfuscate.Router do
 
     id = Common.id_generator(generator, String.to_integer(length))
 
-    Obfuscate.InMemory.set(url, id)
+    Obfuscate.InMemory.set(id, url)
 
     conn |> respond(:json, 201, "#{id}")
   end
