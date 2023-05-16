@@ -9,8 +9,8 @@ defmodule Obfuscate.InMemory do
 
   @impl true
   def init(state) do
-    flush_time = Application.get_env(:obfuscate, :flush_time, "3600000")
-    schedule(String.to_integer(flush_time))
+    flush_time = Application.get_env(:obfuscate, :flush_time, "3600000") |> String.to_integer()
+    schedule(flush_time)
     {:ok, state}
   end
 
@@ -24,29 +24,56 @@ defmodule Obfuscate.InMemory do
       {:noreply, state}
     end
 
-    new_state = state |> Map.merge(%{id: id, url: url})
+    expr = Timex.now() |> Timex.shift(hours: +12) |> Timex.to_unix
+    new_state = state |> Map.put(id, {url, expr})
+
+    IO.puts inspect expr
 
     {:noreply, new_state}
   end
 
   @impl true
   def handle_call({:get, id}, _from, state) do
-    if Map.has_key?(state, id) do
-      url = state |>Map.get(id)
-
-      {:reply, url, state}
-    end
-
-    {:reply, nil, state}
+    res = state |> Map.get(id)
+    {:reply, res, state}
   end
 
   @impl true
-  # Flush should instead `sweep` for any
-  def handle_info({:flush, flush_time}, _state) do
+  def handle_info({:flush, flush_time}, state) do
     schedule(flush_time)
 
-    Logger.info("I-MDB: flushed")
-    {:noreply, %{} }
+    keys = state |> Map.keys()
+
+    if !keys do
+      {:noreply, state}
+    end
+
+    current_unix = Timex.now() |> Timex.to_unix
+
+    keys = keys |> Enum.filter(fn key ->
+      {_url, expr} = state |> Map.get(key)
+      current_unix > expr
+    end)
+
+    dropped = length(keys)
+    new_state = state |> Map.drop(keys)
+
+    Logger.debug("DB: #{dropped} were dropped")
+
+    # Old code :3
+    # for key <- keys do
+    #   {_url, expr} = state |> Map.get(key)
+    #   IO.puts inspect expr
+    #   IO.puts inspect Timex.today() |> Timex.to_unix()
+    #   if Date.utc_today() |> Timex.to_unix > expr do
+    #     new_state = state |> Map.delete(key)
+    #     state = state |> Map.delete(key)
+    #   end
+    # end
+
+    Logger.debug("DB: flushed")
+
+    {:noreply, new_state}
   end
 
   @spec schedule(integer()) :: any()
@@ -59,6 +86,11 @@ defmodule Obfuscate.InMemory do
 
   @spec get(String.t()) :: String.t() | nil
   def get(id) do
-    GenServer.call(__MODULE__, {:get, id})
+    res = GenServer.call(__MODULE__, {:get, id})
+
+    case res do
+      nil -> nil
+      {url, _expr} -> url
+    end
   end
 end

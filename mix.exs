@@ -30,6 +30,7 @@ defmodule Obfuscate.MixProject do
       {:credo, "~> 1.7", only: [:dev, :test], runtime: false},
       {:dotenvy, "~> 0.7.0", only: [:dev, :test]},
       {:rustler, "~> 0.28.0"},
+      {:timex, "~> 3.7"},
       {:craft, only: [:dev], git: "https://github.com/NetsuNetwork/craft", tag: "v0.3.1"}
     ]
   end
