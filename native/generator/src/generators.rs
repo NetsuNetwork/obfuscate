@@ -1,7 +1,7 @@
 use rand::{thread_rng, Rng};
 
-const OWO: [&str; 11] = [
-    "owo", "OWO", "0w0", ">w<", "uwu", "uvu", "ovo", "Uvu", "uVu", "uvU", "UVU",
+const OWO: [&str; 10] = [
+    "owo", "OWO", "0w0", "uwu", "uvu", "ovo", "Uvu", "uVu", "uvU", "UVU",
 ];
 
 const NTSU: [&str; 4] = ["ntsu", "tsu", "ne", "tsu"];
