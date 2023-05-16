@@ -59,18 +59,6 @@ defmodule Obfuscate.InMemory do
     new_state = state |> Map.drop(keys)
 
     Logger.debug("DB: #{dropped} were dropped")
-
-    # Old code :3
-    # for key <- keys do
-    #   {_url, expr} = state |> Map.get(key)
-    #   IO.puts inspect expr
-    #   IO.puts inspect Timex.today() |> Timex.to_unix()
-    #   if Date.utc_today() |> Timex.to_unix > expr do
-    #     new_state = state |> Map.delete(key)
-    #     state = state |> Map.delete(key)
-    #   end
-    # end
-
     Logger.debug("DB: flushed")
 
     {:noreply, new_state}
