@@ -18,3 +18,5 @@ COPY config .
 EXPOSE 5488
 
 RUN mix compile 
+
+CMD ["mix", "run", "--no-halt"]
