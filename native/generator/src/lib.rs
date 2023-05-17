@@ -10,4 +10,4 @@ fn ntsu_id(bytes: i8) -> String {
   generators::ntsu(bytes)
 }
 
-rustler::init!("Elixir.Obfuscate.Encoding", [owo_id, ntsu_id]);
+rustler::init!("Obfuscate.Encoding", [owo_id, ntsu_id]);
